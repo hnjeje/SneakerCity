@@ -7,7 +7,7 @@ This is a ready-to-deploy java web application recommended to run on java-tomcat
  1. (need Maven 3.0 (and above) and Java8 (and above) installed)
  2. Check out all the 4 projects in your workspace, then import the to Eclipse 
     or
- 3. Download the .war file and deploy it to Tomcat 9 
+ 3. Download the .war file (<b>scity-core-ui/target/scity-core-ui.war</b>) and deploy it to Tomcat 9 
 
 The application will be available on http://localhost:8080/scity-core-ui/
 
