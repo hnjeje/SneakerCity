@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="#{localeView.language}" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<meta charset="UTF-8" />
+	<title>Scneaker City App</title>
+	<h:outputStylesheet name="sneaker_city.css" library="css" />
+	<h:outputStylesheet
+		name="webjars/font-awesome/4.7.0/css/font-awesome.css" />
+</h:head>
+
+<h:body>
+	<h:form id="sneakerForm">
+		<p:panel
+			rendered="#{!sneakerView.stockView and !sneakerView.cartView}">
+			<h1>Sneaker City</h1>
+		</p:panel>
+		<p:growl id="growl" life="2000" />
+		<div class="ui-g">
+			<p:repeat value="#{sneakerView.latestSneakers}" var="sneaker"
+				rendered="#{!sneakerView.stockView and !sneakerView.cartView}">
+				<div class="card-1 ui-g-12 ui-md-6 ui-lg-2">
+					<p:commandLink id="ajax" update="@form"
+						styleClass="tableColumnHeader"
+						action="#{sneakerView.findSneakerSizes(sneaker)}">
+
+						<h:graphicImage library="images/sneakers"
+							name="#{sneaker.pictureUrl}" width="140" />
+						<h3>
+							<p:outputLabel value="#{sneaker.brandName}" style="color:black;" />
+						</h3>
+
+						<p class="small">
+							<p:outputLabel value="#{sneaker.model}" />
+							<br />
+							<p:outputLabel value="Release Date:"
+								style="color:black; font-weight:bold;" />
+							<p:outputLabel value="#{sneaker.release}" />
+							<br />
+							<p:outputLabel value="Price:"
+								style="color:black; font-weight:bold;" />
+							<p:outputLabel value="$ #{sneaker.price}"
+								style="color:red; font-weight:bold;" />
+						</p>
+					</p:commandLink>
+				</div>
+			</p:repeat>
+		</div>
+		<h2>
+			<p:commandLink id="ajax" rendered="#{sneakerView.stockView}"
+				update="@form" action="#{sneakerView.goHome}"
+				styleClass="tableColumnHeader top_heading">
+				<h3><i class="fa fa-home" title="Home"></i>Home</h3>
+			</p:commandLink>
+		</h2>
+		<p:separator />
+		<div class="ui-g-12 ui-md-6 ui-lg-6">
+			<h:graphicImage library="images/sneakers"
+				name="#{sneakerView.selectedSneaker.pictureUrl}" height="400"
+				rendered="#{sneakerView.stockView}" />
+		</div>
+		<div class="ui-g-12 ui-md-6 ui-lg-6">
+			<p:panel style="border:none;"
+				rendered="#{sneakerView.stockView and !sneakerView.cartView}">
+				<div class="heading">
+					<h3>
+						<p:outputLabel value="#{sneakerView.selectedSneaker.brandName}"
+							style="color:black;" />
+					</h3>
+					<p class="small">
+						<p:outputLabel value="#{sneakerView.selectedSneaker.model}" />
+						<br />
+						<p:outputLabel value="Release Date:"
+							style="color:black; font-weight:bold;" />
+						<p:outputLabel value="#{sneakerView.selectedSneaker.release}" />
+						<br />
+						<p:outputLabel value="#{sneakerView.selectedSneaker.price}"
+							style="font-weight:bold;" />
+					</p>
+				</div>
+				<p:commandLink update="@all" styleClass="tableColumnHeader"
+					action="#{sneakerView.displayCart()}">
+
+					<span class="bell"><h:graphicImage library="images"
+							name="shopping.png" rendered="#{sneakerView.stockView}" /><span
+						class="bellnumbers"><p:outputLabel
+								value="#{sneakerView.cartSize()}" /></span> </span>
+				</p:commandLink>
+				<div>
+					<p:dataTable id="sneakerSizes" value="#{sneakerView.allSizes()}"
+						var="store" widgetVar="commissionData"
+						selection="#{sneakerView.selectedSizes}" rowKey="#{store.id}"
+						style="margin-bottom:0" disabledSelection="#{store.quantity==0}">
+						<f:facet name="header">Select Shoe Size</f:facet>
+						<p:column selectionMode="multiple"
+							style="width:16px;text-align:center" />
+						<p:column headerText="Size"
+							styleClass="#{(store.quantity==0)?'grey':''}">
+							<p:outputLabel value="#{store.size.description}" />
+						</p:column>
+						<p:column headerText="Quantity"
+							styleClass="#{(store.quantity==0)?'grey':''}">
+							<p:outputLabel value="#{store.quantity}" />
+						</p:column>
+
+					</p:dataTable>
+					<div>
+						<p:commandButton update="@form :tot:total" value="ADD TO CART"
+							action="#{sneakerView.addToCart}" icon="fa fa-shopping-cart" />
+					</div>
+				</div>
+			</p:panel>
+		</div>
+
+
+		<!-- 		CART VIEW -->
+
+
+		<h:panelGrid columns="3" style="margin:0 auto;">
+			<p:commandLink
+				rendered="#{!sneakerView.stockView and sneakerView.cartView}"
+				update="@form" action="#{sneakerView.goHome}"
+				styleClass="tableColumnHeader top_heading">
+				<h3><i class="fa fa-home" title="Home"></i>Home</h3>
+			</p:commandLink>|
+			<p:commandLink
+				rendered="#{!sneakerView.stockView and sneakerView.cartView}"
+				update=":tot @form" action="#{sneakerView.goStock()}"
+				styleClass="tableColumnHeader top_heading">
+				<h3><i class="fa fa-align-justify" title="Home"></i>Details</h3>
+			</p:commandLink>
+		</h:panelGrid>
+		<p:separator />
+		<div class="ui-g-12 ui-md-6 ui-lg-6">
+			<h:graphicImage library="images/sneakers"
+				rendered="#{!sneakerView.stockView and sneakerView.cartView}"
+				name="#{sneakerView.selectedSneaker.pictureUrl}" height="400" />
+		</div>
+		<div class="ui-g-12 ui-md-6 ui-lg-6">
+			<p:panel
+				rendered="#{sneakerView.cartView}"
+				style="border:none;">
+
+				<p:panelGrid columns="1" rendered="#{sneakerView.cartView}"
+					style="width:100%">
+					<p:repeat value="#{sneakerView.cart}" var="cart">
+						<div class="ui-g">
+							<p:row>
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<h:graphicImage library="images/sneakers"
+										name="#{sneakerView.findSneaker(cart.sneaker).pictureUrl}"
+										width="140" />
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<h3>
+										<p:outputLabel
+											value="#{sneakerView.findSneaker(cart.sneaker).brandName}"
+											style="color:black;" />
+										<br />
+									</h3>
+
+									<p class="small">
+										<p:outputLabel
+											value="#{sneakerView.findSneaker(cart.sneaker).model}" />
+										<br />
+										<p:outputLabel value="Release Date:"
+											style="color:black; font-weight:bold;" />
+										<p:outputLabel
+											value="#{sneakerView.findSneaker(cart.sneaker).release}" />
+										<br />
+										<p:outputLabel value="Size: "
+											style="color:black; font-weight:bold;" />
+										<p:outputLabel value="#{cart.size.description}"
+											style="color:black;" />
+										<br />
+
+									</p>
+
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<p class="small">
+										<p:outputLabel id="quant" value="Quantity:  #{cart.quantity}"
+											style="color:black; font-weight:bold;" />
+										<p:commandLink update="@form quant"
+											action="#{sneakerView.enableSelect()}">
+											<p:spacer width="10px"/>
+											<p:outputLabel value="Change"
+												style="color:black; font-weight:bold;" />
+										</p:commandLink>
+										<p:selectOneMenu id="qty" value="#{sneakerView.selectedQty}"
+											rendered="#{sneakerView.enableChange}"
+											style="width:25px; font-size:8;">
+											<f:selectItem itemLabel="1" itemValue="1" />
+											<f:selectItem itemLabel="2" itemValue="2" />
+											<f:selectItem itemLabel="3" itemValue="3" />
+											<f:selectItem itemLabel="4" itemValue="4" />
+											<f:selectItem itemLabel="5" itemValue="5" />
+											<p:ajax event="change" update=":tot:total price quant @form"
+												listener="#{sneakerView.changeQuantity(cart)}">
+												<f:param value="#{sneakerView.selectedQty}" name="item" />
+											</p:ajax>
+										</p:selectOneMenu>
+
+									</p>
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<p class="small">
+										<p:outputLabel value="Price:"
+											style="color:black; font-weight:bold;" />
+										<p:outputLabel id="price"
+											value="$ #{sneakerView.findSneaker(cart.sneaker).price * cart.quantity}"
+											style="color:red; font-weight:bold;" />
+									</p>
+									<p:commandLink update="@form tot:total"
+										action="#{sneakerView.remove(cart.id)}"
+										styleClass="tableColumnHeader top_heading">
+										<p class="small">
+											Remove <i class="fa fa-trash" title="Remove"></i>
+										</p>
+									</p:commandLink>
+								</div>
+							</p:row>
+						</div>
+					</p:repeat>
+
+				</p:panelGrid>
+			</p:panel>
+		</div>
+	</h:form>
+	<h:form id="tot">
+		<p:panel rendered="#{!sneakerView.stockView and sneakerView.cartView}"
+			style="text-align:right;">
+			<h3>
+				<p:outputLabel id="total"
+					value="Total: $ #{sneakerView.cartTotalPrice}" />
+			</h3>
+			<p:commandLink update="@form" styleClass="tableColumnHeader"
+				action="#">
+				<h:graphicImage library="images" name="buy.jpg" width="400" />
+			</p:commandLink>
+		</p:panel>
+	</h:form>
+</h:body>
+</html>
